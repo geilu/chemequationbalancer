@@ -4,26 +4,25 @@ import java.util.regex.Pattern;
 
 public class SideParser {
 
-    public static HashMap<String, Integer> parseSide(String side) {
+    public static HashMap<String, HashMap<String, Integer>> parseSide(String side) {
         String[] compounds = side.split(" \\+ ");
-        HashMap<String, Integer> elementMap = new HashMap<>();
+        HashMap<String, HashMap<String, Integer>>  sideMap = new HashMap<>();
 
         for (String comp : compounds) {
-            comp = addParentheses(comp);
-            parseCompound(comp, elementMap);
+            String foundIon = containsIon(comp);
+            if (foundIon != null) {
+                comp = addParentheses(comp, foundIon);
+            }
+            sideMap.put(comp, parseCompound(comp));
         }
-        return elementMap;
+        return sideMap;
     }
 
-    public static HashMap<String, Integer> parseCompound(String compound, HashMap<String, Integer> elementMap) {
+    public static HashMap<String, Integer> parseCompound(String compound) {
+        HashMap<String, Integer> elementMap = new HashMap<>();
 
-        Pattern basePattern = Pattern.compile("([A-Z][a-z]?)(\\d*)"); // find uppercase letter with optional lowercase letter and optional digit
-        Pattern ionPattern = Pattern.compile("([A-Z][a-z]?|\\([A-Za-z0-9]+\\))(\\d*)"); // find element or parenthesized group with optional digit
-        Matcher matcher = basePattern.matcher(compound);
-
-        if (containsIon(compound)) {
-            matcher = ionPattern.matcher(compound);
-        }
+        Pattern pattern = Pattern.compile("([A-Z][a-z]?|\\([A-Za-z0-9]+\\))(\\d*)"); // find uppercase letter with optional lowercase letter or parenthesized group with optional digit
+        Matcher matcher = pattern.matcher(compound);
 
         while (matcher.find()) {
             String element = matcher.group(1);
@@ -37,29 +36,25 @@ public class SideParser {
         return elementMap;
     }
 
-    public static String addParentheses(String compound) {
+    public static String addParentheses(String compound, String ion) {
         // for cases like NaNO3 when there's an ion without parentheses, add parentheses for easier parsing later
-        String[] ions = {"NO2", "NO3", "SO3", "SO4", "CO3", "PO4", "OH", "NH4"};
+        if (compound.contains(ion) && !compound.contains("(") && !compound.contains(")")) { // make sure there are no parentheses already too
+            int startIdx = compound.indexOf(ion);
+            int endIdx = startIdx + ion.length() - 1;
 
-        for (String ion : ions) {
-            if (compound.contains(ion) && !compound.contains("(") && !compound.contains(")")) { // make sure there are no parentheses already too
-                int startIdx = compound.indexOf(ion);
-                int endIdx = startIdx + ion.length() - 1;
-
-                return compound.substring(0, startIdx) + "(" + compound.substring(startIdx, endIdx+1) + ")" + compound.substring(endIdx+1);
-            }
+            return compound.substring(0, startIdx) + "(" + compound.substring(startIdx, endIdx+1) + ")" + compound.substring(endIdx+1);
         }
         return compound;
     }
 
-    public static boolean containsIon(String compound) {
+    public static String containsIon(String compound) {
         String[] ions = {"NO2", "NO3", "SO3", "SO4", "CO3", "PO4", "OH", "NH4"};
 
         for (String ion : ions) {
             if (compound.contains(ion)) {
-                return true;
+                return ion;
             }
         }
-        return false;
+        return null;
     }
 }
