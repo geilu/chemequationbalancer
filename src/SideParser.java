@@ -1,10 +1,12 @@
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SideParser {
 
-    public static HashMap<String, HashMap<String, Integer>> parseSide(String side) {
+    public static HashMap<String, HashMap<String, Integer>> parseSide(String side, List<String> uniqueElements) {
         String[] compounds = side.split(" \\+ ");
         HashMap<String, HashMap<String, Integer>>  sideMap = new HashMap<>();
 
@@ -13,7 +15,9 @@ public class SideParser {
             if (foundIon != null) {
                 comp = addParentheses(comp, foundIon);
             }
-            sideMap.put(comp, parseCompound(comp));
+            HashMap<String, Integer> elementMap = parseCompound(comp);
+            sideMap.put(comp, elementMap);
+            getUniqueElements(elementMap, uniqueElements);
         }
         return sideMap;
     }
@@ -56,5 +60,13 @@ public class SideParser {
             }
         }
         return null;
+    }
+
+    public static void getUniqueElements(HashMap<String, Integer> elementMap, List<String> uniqueElements) {
+        for (String element : elementMap.keySet()) {
+            if (!uniqueElements.contains(element)) {
+                uniqueElements.add(element);
+            }
+        }
     }
 }

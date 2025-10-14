@@ -1,3 +1,7 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 public class Main {
     public static void main(String[] args) {
         String eq = "Co(NO3)2 + Na2S = CoS + NaNO3";
@@ -5,11 +9,16 @@ public class Main {
         String eq3 = "Br + O = BrO";
         String[] sides = eq2.split(" = ");
 
-        if (sides.length == 2) {
-            System.out.println(SideParser.parseSide(sides[0]));
-            System.out.println(SideParser.parseSide(sides[1]));
+        List<String> uniqueElements = new ArrayList<>();
 
-            //System.out.println(Balancer.isBalanced(SideParser.parseSide(sides[0]), SideParser.parseSide(sides[1])));
+        if (sides.length == 2) {
+            HashMap<String, HashMap<String, Integer>> firstSide = new HashMap<>(SideParser.parseSide(sides[0], uniqueElements));
+            HashMap<String, HashMap<String, Integer>> secondSide = new HashMap<>(SideParser.parseSide(sides[1], uniqueElements));
+
+//            System.out.println(firstSide);
+//            System.out.println(secondSide);
+
+            System.out.println(Balancer.balance(firstSide, secondSide, uniqueElements));
         }
     }
 }
