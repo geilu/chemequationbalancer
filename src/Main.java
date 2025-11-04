@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -12,13 +10,17 @@ public class Main {
         List<String> uniqueElements = new ArrayList<>();
 
         if (sides.length == 2) {
-            HashMap<String, HashMap<String, Integer>> firstSide = new HashMap<>(SideParser.parseSide(sides[0], uniqueElements));
-            HashMap<String, HashMap<String, Integer>> secondSide = new HashMap<>(SideParser.parseSide(sides[1], uniqueElements));
+            // get maps of both sides and fill unique elements list
+            // LinkedHashMap to preserve insertion order
+            LinkedHashMap<String, LinkedHashMap<String, Integer>> reactants = new LinkedHashMap<>(SideParser.parseSide(sides[0], uniqueElements));
+            LinkedHashMap<String, LinkedHashMap<String, Integer>> products = new LinkedHashMap<>(SideParser.parseSide(sides[1], uniqueElements));
 
-//            System.out.println(firstSide);
-//            System.out.println(secondSide);
+            // create matrix of element appearances
+            double[][] elementAppearances = Balancer.matrix(reactants, products, uniqueElements);
 
-            System.out.println(Balancer.balance(firstSide, secondSide, uniqueElements));
+            // get list of coefficients
+            int[] coeffs = Balancer.getCoefficients(elementAppearances);
+            System.out.println(Arrays.toString(coeffs));
         }
     }
 }
