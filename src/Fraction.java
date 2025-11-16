@@ -1,0 +1,78 @@
+public final class Fraction {
+    private final long numerator;
+    private final long denominator;
+
+    public Fraction(long numerator, long denominator) {
+        if (denominator == 0) {
+            throw new IllegalArgumentException("Denominator cannot be zero");
+        }
+        if (denominator < 0) {
+            numerator = -numerator;
+            denominator = -denominator;
+        }
+
+        long gcd = gcd(numerator, denominator);
+        this.numerator = numerator / gcd;
+        this.denominator = denominator / gcd;
+    }
+
+    public Fraction multiply(Fraction b) {
+        return new Fraction(this.numerator * b.getNumerator(), this.denominator * b.getDenominator());
+    }
+
+    public Fraction divide(Fraction b) {
+        if (b.getNumerator() == 0) {
+            throw new ArithmeticException("Cannot divide by zero fraction");
+        }
+        return new Fraction(this.numerator * b.getDenominator(), this.denominator * b.getNumerator());
+    }
+
+    public Fraction add(Fraction b) {
+        long resultNumerator = this.numerator * b.getDenominator() + b.getNumerator() * this.denominator;
+        long resultDenominator = this.denominator * b.getDenominator();
+        return new Fraction(resultNumerator, resultDenominator);
+    }
+
+    public Fraction subtract(Fraction b) {
+        long resultNumerator = this.numerator * b.getDenominator() - b.getNumerator() * this.denominator;
+        long resultDenominator = this.denominator * b.getDenominator();
+        return new Fraction(resultNumerator, resultDenominator);
+    }
+
+    private static long gcd(long a, long b) {
+        a = Math.abs(a);
+        b = Math.abs(b);
+        while (b != 0) {
+            long temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
+    }
+
+    public long getNumerator() {
+        return numerator;
+    }
+
+    public long getDenominator() {
+        return denominator;
+    }
+
+    @Override
+    public String toString() {
+        return numerator + "/" + denominator;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Fraction fraction = (Fraction) o;
+        return this.numerator == fraction.getNumerator() && this.denominator == fraction.getDenominator();
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * Long.hashCode(this.numerator) + Long.hashCode(this.denominator);
+    }
+}

@@ -2,7 +2,7 @@ import java.util.*;
 
 public class Balancer {
     public static int[] getCoefficients(double[][] A) {
-        // todo
+        // todo: solve by gaussian elimination
         return null;
     }
 
