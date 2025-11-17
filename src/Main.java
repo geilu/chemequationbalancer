@@ -12,11 +12,11 @@ public class Main {
         if (sides.length == 2) {
             // get maps of both sides and fill unique elements list
             // LinkedHashMap to preserve insertion order
-            LinkedHashMap<String, LinkedHashMap<String, Integer>> reactants = new LinkedHashMap<>(SideParser.parseSide(sides[0], uniqueElements));
-            LinkedHashMap<String, LinkedHashMap<String, Integer>> products = new LinkedHashMap<>(SideParser.parseSide(sides[1], uniqueElements));
+            LinkedHashMap<String, LinkedHashMap<String, Fraction>> reactants = new LinkedHashMap<>(SideParser.parseSide(sides[0], uniqueElements));
+            LinkedHashMap<String, LinkedHashMap<String, Fraction>> products = new LinkedHashMap<>(SideParser.parseSide(sides[1], uniqueElements));
 
             // create matrix of element appearances
-            double[][] elementAppearances = Balancer.matrix(reactants, products, uniqueElements);
+            Fraction[][] elementAppearances = Balancer.matrix(reactants, products, uniqueElements);
 
             // get list of coefficients
             int[] coeffs = Balancer.getCoefficients(elementAppearances);

@@ -16,6 +16,11 @@ public final class Fraction {
         this.denominator = denominator / gcd;
     }
 
+    public Fraction(long number) {
+        this.numerator = number;
+        this.denominator = 1;
+    }
+
     public Fraction multiply(Fraction b) {
         return new Fraction(this.numerator * b.getNumerator(), this.denominator * b.getDenominator());
     }
@@ -37,6 +42,10 @@ public final class Fraction {
         long resultNumerator = this.numerator * b.getDenominator() - b.getNumerator() * this.denominator;
         long resultDenominator = this.denominator * b.getDenominator();
         return new Fraction(resultNumerator, resultDenominator);
+    }
+
+    public Fraction negate() {
+        return new Fraction(-this.getNumerator(), this.getDenominator());
     }
 
     private static long gcd(long a, long b) {
