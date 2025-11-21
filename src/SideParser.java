@@ -60,6 +60,23 @@ public class SideParser {
         }
         return null;
     }
+    // checks for unnecessary parentheses in a compound from parsing, eg Na(NO3) when it could be NaNO3
+    // when an ion with unnecessary parentheses is found, itll return compound with the parentheses removed, otherwise unchanged
+    public static String handleParentheses(String compound) {
+        String ion = containsIon(compound);
+        if (ion != null) {
+            int startIdx = compound.indexOf(ion);
+            int endIdx = startIdx + ion.length() - 1;
+            char afterParentheses = 'a';
+            if (endIdx+2 < compound.length()) {
+                afterParentheses = compound.charAt(endIdx+2);
+            }
+            if (!Character.isDigit(afterParentheses)) {
+                return compound.substring(0, startIdx-1) + ion + compound.substring(endIdx+2);
+            }
+        }
+        return compound;
+    }
 
     public static void getUniqueElements(LinkedHashMap<String, Fraction> elementMap, List<String> uniqueElements) {
         for (String element : elementMap.keySet()) {

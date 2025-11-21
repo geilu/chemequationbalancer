@@ -17,10 +17,42 @@ public class Main {
 
             // create matrix of element appearances
             Fraction[][] elementAppearances = Balancer.matrix(reactants, products, uniqueElements);
+            // matrix into rref
+            Fraction[][] rrefMatrix = Balancer.RREFmatrix(elementAppearances);
+            // get the coeffs
+            long[] coeffs = Balancer.getCoefficients(rrefMatrix);
 
-            // get list of coefficients
-            int[] coeffs = Balancer.getCoefficients(elementAppearances);
-            System.out.println(Arrays.toString(coeffs));
+            System.out.println("balanced equation:");
+            System.out.println(buildEquation(coeffs, reactants, products));
+        }
+    }
+
+    private static String buildEquation(long[] coeffs, LinkedHashMap<String, LinkedHashMap<String, Fraction>> reactants, LinkedHashMap<String, LinkedHashMap<String, Fraction>> products) {
+        StringBuilder sb = new StringBuilder();
+
+        int idx = 0;
+        int compoundCount = reactants.size();
+        for (String reactant : reactants.keySet()) {
+            appendElement(coeffs[idx], sb, reactant, compoundCount, idx);
+            idx++;
+        }
+        sb.append(" = ");
+        compoundCount += products.size();
+        for (String product : products.keySet()) {
+            appendElement(coeffs[idx], sb, product, compoundCount, idx);
+            idx++;
+        }
+        return sb.toString();
+    }
+
+    private static void appendElement(long coeff, StringBuilder sb, String compound, int compoundCount, int idx) {
+        compound = SideParser.handleParentheses(compound);
+        if (coeff > 1) {
+            sb.append(coeff);
+        }
+        sb.append(compound);
+        if (idx+1 < compoundCount) {
+            sb.append(" + ");
         }
     }
 }
