@@ -1,3 +1,5 @@
+package dataobjects;
+
 public final class Fraction {
     private final long numerator;
     private final long denominator;
@@ -25,21 +27,8 @@ public final class Fraction {
         return new Fraction(this.numerator * b.getNumerator(), this.denominator * b.getDenominator());
     }
 
-    public Fraction divide(Fraction b) {
-        if (b.getNumerator() == 0) {
-            throw new ArithmeticException("Cannot divide by zero fraction");
-        }
-        return new Fraction(this.numerator * b.getDenominator(), this.denominator * b.getNumerator());
-    }
-
     public Fraction add(Fraction b) {
         long resultNumerator = this.numerator * b.getDenominator() + b.getNumerator() * this.denominator;
-        long resultDenominator = this.denominator * b.getDenominator();
-        return new Fraction(resultNumerator, resultDenominator);
-    }
-
-    public Fraction subtract(Fraction b) {
-        long resultNumerator = this.numerator * b.getDenominator() - b.getNumerator() * this.denominator;
         long resultDenominator = this.denominator * b.getDenominator();
         return new Fraction(resultNumerator, resultDenominator);
     }

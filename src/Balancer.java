@@ -1,6 +1,12 @@
+import dataobjects.Compound;
+import dataobjects.Fraction;
+
 import java.util.*;
 
-public class Balancer {
+public final class Balancer {
+
+    private Balancer(){}
+
     public static long[] getCoefficients(Fraction[][] matrix) {
         // we have a matrix in RREF with elements as fractions, we can turn those into linear equations:
         // from a matrix like this where a column represents x_(col)
@@ -30,17 +36,14 @@ public class Balancer {
 
         return coeffs;
     }
-    public static Fraction[][] RREFmatrix(Fraction[][] matrix) {
+    public static Fraction[][] matrixToRREF(Fraction[][] matrix) {
         int rows = matrix.length;
         int cols = matrix[0].length;
 
         int currentColumn = 0;
-        int currentRow = 0;
+        int currentRow;
 
         for (int i = 0; i < rows; i++) {
-            if (cols <= currentColumn) {
-                break;
-            }
             // skip the 0s above
             currentRow = i;
             while (currentColumn < cols && matrix[currentRow][currentColumn].equals(new Fraction(0))) {
@@ -69,7 +72,7 @@ public class Balancer {
         return matrix;
     }
 
-    public static Fraction[][] matrix(LinkedHashMap<String, LinkedHashMap<String, Fraction>> reactants, LinkedHashMap<String, LinkedHashMap<String, Fraction>> products, List<String> uniqueElements) {
+    public static Fraction[][] matrix(List<Compound> reactants, List<Compound> products, List<String> uniqueElements) {
         // we're gonna use this to create a matrix of how many times each unique element appears in a side
         // for the reactants we'll use positive numbers and for the products, negative numbers
         // for example with equation C6H12O6 + O2 -> CO2 + H2O:
@@ -84,18 +87,20 @@ public class Balancer {
         Fraction[][] matrix = new Fraction[rowCount][colCount];
 
         int col = 0;
-        for (LinkedHashMap<String, Fraction> compound : reactants.values()) {
+        for (Compound reactant : reactants) {
             for (int row = 0; row < rowCount; row++) {
                 String element = uniqueElements.get(row);
-                matrix[row][col] = compound.getOrDefault(element, new Fraction(0));
+                Map<String, Fraction> compElementMap = reactant.getElements();
+                matrix[row][col] = compElementMap.getOrDefault(element, new Fraction(0));
             }
             col++;
         }
 
-        for (LinkedHashMap<String, Fraction> compound : products.values()) {
+        for (Compound product : products) {
             for (int row = 0; row < rowCount; row++) {
                 String element = uniqueElements.get(row);
-                matrix[row][col] = compound.getOrDefault(element, new Fraction(0)).negate();
+                Map<String, Fraction> compElementMap = product.getElements();
+                matrix[row][col] = compElementMap.getOrDefault(element, new Fraction(0)).negate();
             }
             col++;
         }
@@ -104,52 +109,37 @@ public class Balancer {
     }
 
     // adding row2*scale to row1
-    private static Fraction[][] addMultipliedRow(Fraction[][] matrix, int rowIdx1, int rowIdx2, Fraction scale) {
+    private static void addMultipliedRow(Fraction[][] matrix, int rowIdx1, int rowIdx2, Fraction scale) {
         int cols = matrix[0].length;
         Fraction[] multipliedRow = new Fraction[matrix[rowIdx2].length];
         for (int i = 0; i < cols; i++) {
             multipliedRow[i] = matrix[rowIdx2][i].multiply(scale);
             matrix[rowIdx1][i] = matrix[rowIdx1][i].add(multipliedRow[i]);
         }
-        return matrix;
-    }
-
-    // adding two rows, row2 = row2+row1
-    private static Fraction[][] addRow(Fraction[][] matrix, int rowIdx1, int rowIdx2) {
-        int cols = matrix[0].length;
-        for (int i = 0; i < cols; i++) {
-            matrix[rowIdx2][i] = matrix[rowIdx2][i].add(matrix[rowIdx1][i]);
-        }
-        return matrix;
     }
 
     // multiplying a row by a scale
-    private static Fraction[][] multiplyRow(Fraction[][] matrix, int rowIdx, Fraction scale) {
+    private static void multiplyRow(Fraction[][] matrix, int rowIdx, Fraction scale) {
         int cols = matrix[0].length;
         for (int i = 0; i < cols; i++) {
             matrix[rowIdx][i] = matrix[rowIdx][i].multiply(scale);
         }
-        return matrix;
     }
 
     // swapping position of two rows
-    private static Fraction[][] swapRow(Fraction[][] matrix, int rowIdx1, int rowIdx2) {
+    private static void swapRow(Fraction[][] matrix, int rowIdx1, int rowIdx2) {
         Fraction[] row1 = matrix[rowIdx1];
         matrix[rowIdx1] = matrix[rowIdx2];
         matrix[rowIdx2] = row1;
-
-        return matrix;
     }
 
     // for ver = 1, return negative fraction
     // for ver = 2, return reciprocal of fraction
     private static Fraction getScalarFromFraction(Fraction frac, int ver) {
-        if (ver == 1) {
-            return frac.negate();
-        } else if (ver == 2) {
-            return new Fraction(frac.getDenominator(), frac.getNumerator());
-        } else {
-            throw new IllegalArgumentException("Invalid ver: " + ver);
-        }
+        return switch (ver) {
+            case 1 -> frac.negate();
+            case 2 -> new Fraction(frac.getDenominator(), frac.getNumerator());
+            default -> throw new IllegalArgumentException("Invalid getScalarFromFraction mode identifier: " + ver);
+        };
     }
 }
