@@ -5,30 +5,40 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        //String eq = "Co(NO3)2 + Na2S = CoS + NaNO3";
-        //String eq2 = "C6H12O6 + O2 = CO2 + H2O";
-        //String eq3 = "Br + O = BrO";
-        String eq4 = "Fe + C2H3O2 = Fe(C2H3O2)3"; // problematic
-        String eq5 = "Mg + OH = Mg(OH)2"; // problematic
-        String[] sides = eq4.split(" = ");
+        String[] eqs = {"Co(NO3)2 + Na2S = CoS + NaNO3",
+                                "C6H12O6 + O2 = CO2 + H2O",
+                                "Br + O = BrO",
+                                "Fe + C2H3O2 = Fe(C2H3O2)3",
+                                "Mg + OH = Mg(OH)2",
+                                "Be + NaOH + H2O = Na2[Be(OH)4] + H2", // potentially problematic
+                                "Al2(SO4)3 + Na[Al(OH)4] = Al(OH)3 + Na2SO4", // potentially problematic
+                                "Al2O3 + HCl + H2O = [Al(H2O)6]Cl3", // todo: problematic
+                                "Zn + OH + H2O = [Zn(OH)4] + H2"}; // potentially problematic
 
-        List<String> uniqueElements = new ArrayList<>();
+        for (String eq : eqs) {
+            String[] sides = eq.split(" = ");
 
-        if (sides.length == 2) {
-            // get maps of both sides and fill unique elements list
-            // LinkedHashMap to preserve insertion order
-            List<Compound> reactants = SideParser.parseSide(sides[0], uniqueElements);
-            List<Compound> products = SideParser.parseSide(sides[1], uniqueElements);
+            List<String> uniqueElements = new ArrayList<>();
 
-            // create matrix of element appearances
-            Fraction[][] elementAppearances = Balancer.matrix(reactants, products, uniqueElements);
-            // matrix into rref
-            Fraction[][] rrefMatrix = Balancer.matrixToRREF(elementAppearances);
-            // get the coeffs
-            long[] coeffs = Balancer.getCoefficients(rrefMatrix);
+            if (sides.length == 2) {
+                // get compound object lisrs of reactants and products and fill unique elements list
+                List<Compound> reactants = SideParser.parseSide(sides[0], uniqueElements);
+                List<Compound> products = SideParser.parseSide(sides[1], uniqueElements);
 
-            System.out.println("balanced equation:");
-            System.out.println(buildEquation(coeffs, reactants, products));
+                // create matrix of element appearances
+                Fraction[][] elementAppearances = Balancer.matrix(reactants, products, uniqueElements);
+
+                // matrix into rref
+                Fraction[][] rrefMatrix = Balancer.matrixToRREF(elementAppearances);
+
+                // get the coeffs
+                long[] coeffs = Balancer.getCoefficients(rrefMatrix);
+
+
+                System.out.println("balanced equation for " + eq + ":");
+                System.out.println(buildEquation(coeffs, reactants, products));
+                System.out.println("-------------");
+            }
         }
     }
 

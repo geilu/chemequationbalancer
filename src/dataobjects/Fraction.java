@@ -37,7 +37,7 @@ public final class Fraction {
         return new Fraction(-this.getNumerator(), this.getDenominator());
     }
 
-    private static long gcd(long a, long b) {
+    public static long gcd(long a, long b) {
         a = Math.abs(a);
         b = Math.abs(b);
         while (b != 0) {
@@ -46,6 +46,11 @@ public final class Fraction {
             a = temp;
         }
         return a;
+    }
+
+    public static long lcm(long a, long b) {
+        if (a == 0 || b == 0) return 0;
+        return Math.abs(a * b) / gcd(a, b);
     }
 
     public long getNumerator() {

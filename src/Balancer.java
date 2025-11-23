@@ -18,20 +18,27 @@ public final class Balancer {
         // x_2 = -1 * x_4
         // x_3 = -1 * x_4
         // here, lowest value for x_4 to make x_1 an integer needs to be 6, from where all others can also be solved
-        long[] coeffs = new long[matrix[0].length];
         int rows = matrix.length;
         int cols = matrix[0].length;
+        long[] coeffs = new long[cols];
 
+        long commonDenominator = 1;
         // find the variable corresponding to the last column
         for (int i = 0; i < rows; i++) {
-            if (matrix[i][cols-1].getDenominator() != 1) {
-                coeffs[cols-1] = matrix[i][cols-1].getDenominator();
-            }
+            long currentDenominator = matrix[i][cols-1].getDenominator();
+            commonDenominator = Fraction.lcm(commonDenominator, currentDenominator);
         }
+        coeffs[cols-1] = commonDenominator;
+        Fraction commDenomFrac = new Fraction(commonDenominator);
 
         // find the rest of the variables
-        for (int i = 0; i < coeffs.length-1; i++) {
-            coeffs[i] = Math.abs(matrix[i][cols-1].multiply(new Fraction(coeffs[cols-1])).getNumerator());
+        for (int i = 0; i < cols-1; i++) {
+            if (i < rows) {
+                Fraction coeff = matrix[i][cols-1].multiply(commDenomFrac);
+                coeffs[i] = Math.abs(coeff.getNumerator());
+            } else {
+                coeffs[i] = 0;
+            }
         }
 
         return coeffs;

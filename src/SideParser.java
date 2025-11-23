@@ -14,10 +14,15 @@ public final class SideParser {
         for (String comp : compounds) {
             Compound compound = new Compound(comp);
 
-            String foundIon = containsIon(comp);
-            if (foundIon != null) {
-                String compChangedForm = addParentheses(comp, foundIon);
-                compound.setChangedForm(compChangedForm);
+            //String foundIon = containsIon(comp);
+            if (comp.contains("(") && comp.contains(")")) { // does it still have parentheses? eg. Fe(C2H3O3)3
+                int digitIdx = comp.indexOf(")") + 1;
+                digitIdx = comp.length() > digitIdx ? digitIdx : -1;
+
+                if (digitIdx != -1 && Character.isDigit(comp.charAt(digitIdx))) {
+                    int digit = Integer.parseInt(comp.substring(digitIdx, digitIdx + 1));
+                    compound.setChangedForm(multiplyInsideParentheses(comp, new Fraction(digit)));
+                }
             }
 
             compound.setElements(); // create the element map when changed form is set
@@ -34,6 +39,37 @@ public final class SideParser {
             int endIdx = startIdx + ion.length() - 1;
 
             return compound.substring(0, startIdx) + "(" + compound.substring(startIdx, endIdx+1) + ")" + compound.substring(endIdx+1);
+        }
+        return compound;
+    }
+
+    private static String multiplyInsideParentheses(String compound, Fraction scalar) {
+        // for cases like Fe(C2H3O2)3 or Co(NO3)2 we'll turn it into FeC6H9O6 or CoN2O6 for easier parsing
+        if (compound.contains("(") && compound.contains(")")) {
+            int beginParentheses = compound.indexOf("(");
+            int endParentheses = compound.indexOf(")");
+
+            StringBuilder sb = new StringBuilder();
+            sb.append(compound, 0, beginParentheses); // append Fe
+
+            String inParentheses = compound.substring(beginParentheses+1, endParentheses); // get the C2H3O2
+
+            Compound inParenthesesComp = new Compound(inParentheses);
+            inParenthesesComp.setElements(); // create initial map
+
+            Map<String, Fraction> inParenthesesMap = inParenthesesComp.getElements();
+
+            for (Map.Entry<String, Fraction> entry : inParenthesesMap.entrySet()) {
+                String key = entry.getKey();
+                Fraction value = entry.getValue();
+
+                value = value.multiply(scalar);
+                inParenthesesMap.replace(key, value);
+
+                sb.append(key);
+                sb.append(value.getNumerator());
+            }
+            return sb.toString();
         }
         return compound;
     }

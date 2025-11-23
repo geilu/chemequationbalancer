@@ -30,6 +30,9 @@ public class Compound {
     public void setElements() {
         this.elements = createElementMap();
     }
+    public void setElements(Map<String, Fraction> elements) {
+        this.elements = elements;
+    }
 
     private Map<String, Fraction> createElementMap() {
         String comp = (changedForm == null || changedForm.isEmpty()) ? originalForm : changedForm;
