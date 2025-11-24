@@ -1,10 +1,10 @@
-import dataobjects.Compound;
-import dataobjects.Fraction;
+package main.java.balancer;
 
 import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
+        // todo 1: turn these into tests
         String[] eqs = {"Co(NO3)2 + Na2S = CoS + NaNO3",
                                 "C6H12O6 + O2 = CO2 + H2O",
                                 "Br + O = BrO",
@@ -12,7 +12,7 @@ public class Main {
                                 "Mg + OH = Mg(OH)2",
                                 "Be + NaOH + H2O = Na2[Be(OH)4] + H2", // potentially problematic
                                 "Al2(SO4)3 + Na[Al(OH)4] = Al(OH)3 + Na2SO4", // potentially problematic
-                                "Al2O3 + HCl + H2O = [Al(H2O)6]Cl3", // todo: problematic
+                                "Al2O3 + HCl + H2O = [Al(H2O)6]Cl3", // todo 2: problematic
                                 "Zn + OH + H2O = [Zn(OH)4] + H2"}; // potentially problematic
 
         for (String eq : eqs) {

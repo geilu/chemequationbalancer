@@ -1,4 +1,4 @@
-package dataobjects;
+package main.java.balancer;
 
 public final class Fraction {
     private final long numerator;

@@ -1,4 +1,4 @@
-package dataobjects;
+package main.java.balancer;
 
 import java.util.HashMap;
 import java.util.Map;
