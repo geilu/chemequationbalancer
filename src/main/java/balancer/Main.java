@@ -1,4 +1,4 @@
-package main.java.balancer;
+package balancer;
 
 import java.util.*;
 

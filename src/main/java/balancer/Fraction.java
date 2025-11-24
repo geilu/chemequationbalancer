@@ -1,8 +1,10 @@
-package main.java.balancer;
+package balancer;
 
 public final class Fraction {
     private final long numerator;
     private final long denominator;
+
+    public static final Fraction ZERO = new Fraction(0);
 
     public Fraction(long numerator, long denominator) {
         if (denominator == 0) {

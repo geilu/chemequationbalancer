@@ -1,4 +1,4 @@
-package main.java.balancer;
+package balancer;
 
 import java.util.*;
 
@@ -24,8 +24,10 @@ public final class Balancer {
         long commonDenominator = 1;
         // find the variable corresponding to the last column
         for (int i = 0; i < rows; i++) {
-            long currentDenominator = matrix[i][cols-1].getDenominator();
-            commonDenominator = Fraction.lcm(commonDenominator, currentDenominator);
+            if (matrix[i][cols-1] != null) {
+                long currentDenominator = matrix[i][cols - 1].getDenominator();
+                commonDenominator = Fraction.lcm(commonDenominator, currentDenominator);
+            }
         }
         coeffs[cols-1] = commonDenominator;
         Fraction commDenomFrac = new Fraction(commonDenominator);
@@ -48,6 +50,15 @@ public final class Balancer {
 
         int currentColumn = 0;
         int currentRow;
+
+        // in case there are null objects in the matrix replace them with 0
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                if (matrix[i][j] == null) {
+                    matrix[i][j] = Fraction.ZERO;
+                }
+            }
+        }
 
         for (int i = 0; i < rows; i++) {
             // skip the 0s above
@@ -119,8 +130,10 @@ public final class Balancer {
         int cols = matrix[0].length;
         Fraction[] multipliedRow = new Fraction[matrix[rowIdx2].length];
         for (int i = 0; i < cols; i++) {
-            multipliedRow[i] = matrix[rowIdx2][i].multiply(scale);
-            matrix[rowIdx1][i] = matrix[rowIdx1][i].add(multipliedRow[i]);
+            if (matrix[rowIdx1][i] != null && matrix[rowIdx2][i] != null) {
+                multipliedRow[i] = matrix[rowIdx2][i].multiply(scale);
+                matrix[rowIdx1][i] = matrix[rowIdx1][i].add(multipliedRow[i]);
+            }
         }
     }
 
@@ -128,7 +141,9 @@ public final class Balancer {
     private static void multiplyRow(Fraction[][] matrix, int rowIdx, Fraction scale) {
         int cols = matrix[0].length;
         for (int i = 0; i < cols; i++) {
-            matrix[rowIdx][i] = matrix[rowIdx][i].multiply(scale);
+            if (matrix[rowIdx][i] != null) {
+                matrix[rowIdx][i] = matrix[rowIdx][i].multiply(scale);
+            }
         }
     }
 
