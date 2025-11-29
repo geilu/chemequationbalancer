@@ -14,7 +14,8 @@ public final class SideParser {
             Compound compound = new Compound(comp);
 
             if (comp.contains("(") && comp.contains(")")) {
-                int digitIdx = comp.indexOf(")") + 1;
+                String reverse = new StringBuilder(comp).reverse().toString();
+                int digitIdx = comp.length() - reverse.indexOf(")");
                 digitIdx = comp.length() > digitIdx ? digitIdx : -1;
 
                 if (digitIdx != -1 && Character.isDigit(comp.charAt(digitIdx))) {
@@ -30,27 +31,26 @@ public final class SideParser {
         return compList;
     }
 
-    private static String addParentheses(String compound, String ion) {
-        // for cases like NaNO3 when there's an ion without parentheses, add parentheses for easier parsing later
-        if (compound.contains(ion) && !compound.contains("(") && !compound.contains(")")) {
-            int startIdx = compound.indexOf(ion);
-            int endIdx = startIdx + ion.length() - 1;
-
-            return compound.substring(0, startIdx) + "(" + compound.substring(startIdx, endIdx+1) + ")" + compound.substring(endIdx+1);
-        }
-        return compound;
-    }
-
-    private static String multiplyInsideParentheses(String compound, Fraction scalar) {
+    public static String multiplyInsideParentheses(String compound, Fraction scalar) {
         // for cases like Fe(C2H3O2)3 or Co(NO3)2 we'll turn it into FeC6H9O6 or CoN2O6 for easier parsing
         if (compound.contains("(") && compound.contains(")")) {
             int beginParentheses = compound.indexOf("(");
-            int endParentheses = compound.indexOf(")");
-
+            String reverse = new StringBuilder(compound).reverse().toString();
+            int endParentheses = compound.length() - reverse.indexOf(")") - 1; // get the outermost end parentheses
             StringBuilder sb = new StringBuilder();
             sb.append(compound, 0, beginParentheses);
 
             String inParentheses = compound.substring(beginParentheses+1, endParentheses);
+
+            if (inParentheses.contains("(") && inParentheses.contains(")")) { // if theres double parentheses, eg in (Co(NH3)4CO3)2SO4
+                int digitIdx = inParentheses.indexOf(")") + 1;
+                digitIdx = inParentheses.length() > digitIdx ? digitIdx : -1;
+
+                if (digitIdx != -1 && Character.isDigit(inParentheses.charAt(digitIdx))) {
+                    int digit = Integer.parseInt(inParentheses.substring(digitIdx, digitIdx + 1));
+                    inParentheses = multiplyInsideParentheses(inParentheses, new Fraction(digit));
+                }
+            }
 
             Compound inParenthesesComp = new Compound(inParentheses);
             inParenthesesComp.setElements();
@@ -67,20 +67,15 @@ public final class SideParser {
                 sb.append(key);
                 sb.append(value.getNumerator());
             }
+            int endCharIdx = compound.length() == endParentheses + 1 ? -1 : endParentheses + 1;
+            if(endCharIdx != -1 && Character.isDigit(compound.charAt(endParentheses+1))) {
+                sb.append(compound.substring(endCharIdx+1));
+            } else if (endCharIdx != -1) {
+                sb.append(compound.substring(endCharIdx));
+            }
             return sb.toString();
         }
         return compound;
-    }
-
-    private static String containsIon(String compound) {
-        String[] ions = {"NO2", "NO3", "SO3", "SO4", "CO3", "PO4", "OH", "NH4"};
-
-        for (String ion : ions) {
-            if (compound.contains(ion)) {
-                return ion;
-            }
-        }
-        return null;
     }
 
     public static void getUniqueElements(Map<String, Fraction> elementMap, List<String> uniqueElements) {

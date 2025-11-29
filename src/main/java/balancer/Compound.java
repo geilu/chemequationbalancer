@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public class Compound {
     private final String originalForm;
-    private String changedForm;
+    public String changedForm;
     private Map<String, Fraction> elements;
 
     public Compound(String comp) {

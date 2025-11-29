@@ -3,14 +3,13 @@ package balancer;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BalancerTest {
+class BalancerTest {
 
     @Test
-    public void testGetCoefficients_matrixWithFractionElement() {
+    void testGetCoefficients_matrixWithFractionElement() {
         // set up a RREF matrix like
         //      1    0   0   -1/6
         //      0    1   0     -1
@@ -27,7 +26,7 @@ public class BalancerTest {
     }
 
     @Test
-    public void testGetCoefficients_matrixWithNoFractions() {
+    void testGetCoefficients_matrixWithNoFractions() {
         // set up RREF matrix like
         // 1  0  -1
         // 0  1  -2
@@ -41,9 +40,21 @@ public class BalancerTest {
         // expected coeffs: 1, 2, 1
         assertArrayEquals(new long[]{1, 2, 1}, coeffs);
     }
+    @Test
+    void testMatrixToRREF_identity() {
+        long[][] inputData = {{2, 4},
+                                           {1, 3}};
+        Fraction[][] inputMatrix = createMatrix(inputData);
+
+        Fraction[][] result = Balancer.matrixToRREF(inputMatrix);
+        long[][] expectedData = {{1, 0},
+                                                  {0, 1}};
+        Fraction[][] expected = createMatrix(expectedData);
+        assertArrayEquals(expected, result);
+    }
 
     @Test
-    public void testMatrixToRREF() {
+    void testMatrixToRREF() {
         // set up matrix like
         // 6  0  -1  0
         // 12  0  0  -2
@@ -68,7 +79,7 @@ public class BalancerTest {
     }
 
     @Test
-    public void testMatrix() {
+    void testMatrix() {
         Compound c6h12o6 = new Compound("C6H12O6");
         c6h12o6.setElements();
         Compound o2 = new Compound("O2");
@@ -87,6 +98,36 @@ public class BalancerTest {
                                                   {6, 2, -2, -1}};
         Fraction[][] expectedMatrix = createMatrix(expectedData);
         assertArrayEquals(expectedMatrix, resultMatrix);
+    }
+
+    @Test
+    void testFullBalance_methane() {
+        // set up equation: CH4 + O2 -> CO2 + H2O
+        Compound ch4 = new Compound("CH4");
+        ch4.setElements();
+        Compound o2 = new Compound("O2");
+        o2.setElements();
+        Compound co2 = new Compound("CO2");
+        co2.setElements();
+        Compound h2o = new Compound("H2O");
+        h2o.setElements();
+
+        List<String> uniqueElements = List.of("C", "H", "O");
+
+        List<Compound> reactants = List.of(ch4, o2);
+        List<Compound> products = List.of(co2, h2o);
+
+        // 1. build matrix
+        Fraction[][] matrix = Balancer.matrix(reactants, products, uniqueElements);
+
+        // 2. rref
+        Fraction[][] rrefMatrix = Balancer.matrixToRREF(matrix);
+
+        // 3. coeffs
+        long[] result = Balancer.getCoefficients(rrefMatrix);
+
+        // expected balanced eq: CH4 + 2O2 = CO2 + H2O
+        assertArrayEquals(new long[]{1, 2, 1, 2}, result);
     }
 
     private Fraction[][] createMatrix(long[][] data) {
