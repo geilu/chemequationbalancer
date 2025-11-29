@@ -30,16 +30,6 @@ class SideParserTest {
     }
 
     @Test
-    void testMultiplyInsideParentheses_noParentheses() {
-        String input = "C6H12O6";
-        Fraction scalar = new Fraction(3); // scalar shouldnt matter here
-
-        String result = SideParser.multiplyInsideParentheses(input, scalar);
-
-        assertEquals(result, "C6H12O6");
-    }
-
-    @Test
     void testMultiplyInsideParentheses_ironAcetate() {
         // Fe(C2H3O2)3
         String input = "Fe(C2H3O2)";
@@ -81,13 +71,33 @@ class SideParserTest {
     }
 
     @Test
-    void testMultiplyInsideParentheses_coordinationComplex() {
+    void testMultiplyInsideParentheses_coordinationComplexWithRoundBrackets() {
         // (Co(NH3)4CO3)2SO4
-        String input = "(Co(NH3)4CO3)SO4";
-        Fraction scalar = new Fraction(2);
+        String input = "(Co(NH3)CO3)2SO4";
 
         // final expected: Co2N8H24C2O6SO4
-        String result = SideParser.multiplyInsideParentheses(input, scalar);
+        String result = SideParser.multiplyInsideParentheses(input, new Fraction(4)); // first call: handles (NH3)4
+        assertTrue(result.contains("N4"));
+        assertTrue(result.contains("H12"));
+        result = SideParser.multiplyInsideParentheses("(CoN4H12CO3)SO4", new Fraction(2)); // second call: handles (CoN4H12CO3)2
+        assertTrue(result.contains("Co2"));
+        assertTrue(result.contains("N8"));
+        assertTrue(result.contains("H24"));
+        assertTrue(result.contains("C2"));
+        assertTrue(result.contains("O6"));
+        assertTrue(result.endsWith("SO4"));
+    }
+
+    @Test
+    void testMultiplyInsideParentheses_coordinationComplexWithSquareBrackets() {
+        // [Co(NH3)4CO3]2SO4
+        String input = "[Co(NH3)CO3]2SO4";
+
+        // final expected: Co2N8H24C2O6SO4
+        String result = SideParser.multiplyInsideParentheses(input, new Fraction(4)); // first call: handles (NH3)4
+        assertTrue(result.contains("N4"));
+        assertTrue(result.contains("H12"));
+        result = SideParser.multiplyInsideParentheses("[CoN4H12CO3]SO4", new Fraction(2)); // second call: handles (CoN4H12CO3)2
         assertTrue(result.contains("Co2"));
         assertTrue(result.contains("N8"));
         assertTrue(result.contains("H24"));
@@ -103,5 +113,38 @@ class SideParserTest {
         assertTrue(result.size() == 2);
         assertTrue(result.get(0).getOriginalForm().equals("C6H12O6"));
         assertTrue(result.get(1).getOriginalForm().equals("O2"));
+    }
+
+    @Test
+    void testFindParentheses_noParentheses() {
+        String input = "C6H12O6";
+        int[] result = SideParser.findParentheses(input);
+
+        assertArrayEquals(new int[]{-1, -1}, result);
+    }
+
+    @Test
+    void testFindParentheses_roundBrackets() {
+        String input = "Na(OH)2";
+        int[] result = SideParser.findParentheses(input);
+
+        assertArrayEquals(new int[]{2, 5}, result);
+    }
+
+    @Test
+    void testFindParentheses_squareBrackets() {
+        String input = "[AlH2O6]Cl3"; // the right formula is [Al(H2O)6]Cl3 but i removed the round brackets for this test
+        int[] result = SideParser.findParentheses(input);
+
+        assertArrayEquals(new int[]{0, 7}, result);
+    }
+
+    @Test
+    void testFindParentheses_doubleBrackets() {
+        // should find innermost brackets first
+        String input = "[Al(H2O)6]Cl3";
+        int[] result = SideParser.findParentheses(input);
+
+        assertArrayEquals(new int[]{3, 7}, result);
     }
 }
