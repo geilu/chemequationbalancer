@@ -121,6 +121,6 @@ class EquationTest {
         Fraction[][] rrefMatrix = Balancer.matrixToRREF(matrix);
 
         long[] coeffs = Balancer.getCoefficients(rrefMatrix);
-        return Main.buildEquation(coeffs, reactants, products);
+        return SideParser.buildEquation(coeffs, reactants, products);
     }
 }

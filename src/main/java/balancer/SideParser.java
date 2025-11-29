@@ -103,4 +103,32 @@ public final class SideParser {
             }
         }
     }
+
+    public static String buildEquation(long[] coeffs, List<Compound> reactants, List<Compound> products) {
+        StringBuilder sb = new StringBuilder();
+
+        int idx = 0;
+        int compoundCount = reactants.size();
+        for (Compound reactant : reactants) {
+            appendElement(coeffs[idx], sb, reactant.getOriginalForm(), compoundCount, idx);
+            idx++;
+        }
+        sb.append(" = ");
+        compoundCount += products.size();
+        for (Compound product : products) {
+            appendElement(coeffs[idx], sb, product.getOriginalForm(), compoundCount, idx);
+            idx++;
+        }
+        return sb.toString();
+    }
+
+    public static void appendElement(long coeff, StringBuilder sb, String compound, int compoundCount, int idx) {
+        if (coeff > 1) {
+            sb.append(coeff);
+        }
+        sb.append(compound);
+        if (idx+1 < compoundCount) {
+            sb.append(" + ");
+        }
+    }
 }

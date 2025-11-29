@@ -147,4 +147,24 @@ class SideParserTest {
 
         assertArrayEquals(new int[]{3, 7}, result);
     }
+
+    @Test
+    void testBuildEquation_alreadyBalanced() {
+        List<Compound> reactants = List.of(new Compound("Br"), new Compound("O"));
+        List<Compound> products = List.of(new Compound("BrO"));
+        long[] coeffs = {1, 1, 1};
+
+        String result = SideParser.buildEquation(coeffs, reactants, products);
+        assertEquals("Br + O = BrO", result);
+    }
+
+    @Test
+    void testBuildEquation() {
+        List<Compound> reactants = List.of(new Compound("C6H12O6"), new Compound("O2"));
+        List<Compound> products = List.of(new Compound("CO2"), new Compound("H2O"));
+        long[] coeffs = {1, 6, 6, 6};
+
+        String result = SideParser.buildEquation(coeffs, reactants, products);
+        assertEquals("C6H12O6 + 6O2 = 6CO2 + 6H2O", result);
+    }
 }
