@@ -7,6 +7,12 @@ public final class SideParser {
     private SideParser(){}
 
     public static List<Compound> parseSide(String side, List<String> uniqueElements) {
+        if (side == null || side.isEmpty()) {
+            throw new IllegalArgumentException("Input side empty");
+        }
+        if (uniqueElements == null) {
+            throw new IllegalArgumentException("uniqueElements list must be initialized by the caller");
+        }
         List<Compound> compList = new ArrayList<>();
         String[] compounds = side.split(" \\+ ");
 
@@ -20,8 +26,11 @@ public final class SideParser {
                 digitIdx = changedForm.length() > digitIdx ? digitIdx : -1;
 
                 if (digitIdx != -1 && Character.isDigit(changedForm.charAt(digitIdx))) {
-                    int scalar = Integer.parseInt(changedForm.substring(digitIdx, digitIdx+1));
-                    changedForm = multiplyInsideParentheses(changedForm, new Fraction(scalar));
+                    Fraction scalar = getScalar(changedForm, digitIdx);
+                    if (scalar.getDenominator() != 1) {
+                        throw new ArithmeticException("scalar should be an integer, not a fraction"); // i.e shouldnt get any denominator besides 1
+                    }
+                    changedForm = multiplyInsideParentheses(changedForm, scalar);
                 } else if (digitIdx == -1 || !Character.isDigit(changedForm.charAt(digitIdx))) {
                     changedForm = multiplyInsideParentheses(changedForm, new Fraction(1)); // scale by 1 to just remove the parentheses
                 }
@@ -64,7 +73,8 @@ public final class SideParser {
 
         int endCharIdx = compound.length() == parenIndices[1] + 1 ? -1 : parenIndices[1] + 1;
         if(endCharIdx != -1 && Character.isDigit(compound.charAt(parenIndices[1]+1))) {
-            sb.append(compound.substring(endCharIdx+1));
+            int scalarDigitCount = (int) Math.floor(Math.log10(scalar.getNumerator()) + 1);
+            sb.append(compound.substring(endCharIdx+scalarDigitCount));
         } else if (endCharIdx != -1) {
             sb.append(compound.substring(endCharIdx));
         }
@@ -93,6 +103,9 @@ public final class SideParser {
                 break;
             }
         }
+        if (parenIndices[1] == -1) {
+            return new int[]{-1, -1};
+        }
         return parenIndices;
     }
 
@@ -102,6 +115,20 @@ public final class SideParser {
                 uniqueElements.add(element);
             }
         }
+    }
+
+    private static Fraction getScalar(String compound, int beginIdx) {
+        String str = compound.substring(beginIdx);
+        StringBuilder sb = new StringBuilder();
+        int idx = 0;
+        while (true) {
+            if (idx != str.length() && Character.isDigit(str.charAt(idx))) {
+                sb.append(str.charAt(idx++));
+            } else {
+                break;
+            }
+        }
+        return new Fraction(Integer.parseInt(sb.toString()));
     }
 
     public static String buildEquation(long[] coeffs, List<Compound> reactants, List<Compound> products) {

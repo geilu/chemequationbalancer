@@ -19,6 +19,10 @@ public class Compound {
         return originalForm;
     }
 
+    public String getChangedForm() {
+        return changedForm;
+    }
+
     public Map<String, Fraction> getElements() {
         return new HashMap<>(elements);
     }

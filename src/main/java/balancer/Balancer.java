@@ -17,71 +17,69 @@ public final class Balancer {
         // x_2 = -1 * x_4
         // x_3 = -1 * x_4
         // here, lowest value for x_4 to make x_1 an integer needs to be 6, from where all others can also be solved
+        validateMatrix(matrix);
+
         int rows = matrix.length;
         int cols = matrix[0].length;
+
         long[] coeffs = new long[cols];
 
         long commonDenominator = 1;
         // find the variable corresponding to the last column
         for (int i = 0; i < rows; i++) {
-            if (matrix[i][cols-1] != null) {
-                long currentDenominator = matrix[i][cols - 1].getDenominator();
-                commonDenominator = Fraction.lcm(commonDenominator, currentDenominator);
-            }
+            long currentDenominator = matrix[i][cols - 1].getDenominator();
+            commonDenominator = Fraction.lcm(commonDenominator, currentDenominator);
         }
         coeffs[cols-1] = commonDenominator;
         Fraction commDenomFrac = new Fraction(commonDenominator);
 
         // find the rest of the variables
         for (int i = 0; i < cols-1; i++) {
+            int idx = i;
             if (i < rows) {
+                // handle offset in case of rows with extra leading zeroes
+                while (matrix[i][idx].equals(Fraction.ZERO)) {
+                    if (idx == (cols-1)) break;
+                    idx++;
+                }
                 Fraction coeff = matrix[i][cols-1].multiply(commDenomFrac);
-                coeffs[i] = Math.abs(coeff.getNumerator());
-            } else {
-                coeffs[i] = 0;
+                coeffs[idx] = Math.abs(coeff.getNumerator());
             }
         }
 
         return coeffs;
     }
     public static Fraction[][] matrixToRREF(Fraction[][] matrix) {
+        validateMatrix(matrix);
+
         int rows = matrix.length;
         int cols = matrix[0].length;
 
         int currentColumn = 0;
         int currentRow;
 
-        // in case there are null objects in the matrix replace them with 0
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                if (matrix[i][j] == null) {
-                    matrix[i][j] = Fraction.ZERO;
-                }
-            }
-        }
-
         for (int i = 0; i < rows; i++) {
             // skip the 0s above
             currentRow = i;
-            while (currentColumn < cols && matrix[currentRow][currentColumn].equals(new Fraction(0))) {
+
+            while (matrix[currentRow][currentColumn].equals(Fraction.ZERO)) {
                 currentRow++;
                 if (rows == currentRow) {
                     currentRow = i;
                     currentColumn++;
+                    if (cols <= currentColumn) break; // end if we're at the very "bottom right corner" of matrix
                 }
             }
-
-            if (cols <= currentColumn) {
-                break;
-            }
+            if (cols <= currentColumn) break;
 
             swapRow(matrix, currentRow, i); // swapping the first row with nonzero value in column to the 1 diagonal
-            if (!matrix[i][currentColumn].equals(new Fraction(0))) {
-                multiplyRow(matrix, i, getScalarFromFraction(matrix[i][currentColumn], 2)); // ver 2: multiplying by the inverse of the current element (eg. element 6 multiplied by 1/6)
+            if (!matrix[i][currentColumn].equals(Fraction.ZERO)) {
+                Fraction frac = new Fraction(matrix[i][currentColumn].getDenominator(), matrix[i][currentColumn].getNumerator());
+                multiplyRow(matrix, i, frac);
             }
             for (int j = 0; j < rows; j++) {
                 if (i != j) { // skip the 1
-                    addMultipliedRow(matrix, j, i, getScalarFromFraction(matrix[j][currentColumn], 1)); // ver 1: multiplying by the negative of the current element (eg. element 12, adding row with 1 in col multiplied by -12)
+                    addMultipliedRow(matrix, j, i, matrix[j][currentColumn].negate());
                 }
             }
             currentColumn++;
@@ -98,6 +96,16 @@ public final class Balancer {
         //        C              +6          0          -1          0
         //        H             +12          0           0         -2
         //        O              +6         +2          -2         -1
+        if (reactants == null || reactants.isEmpty()) {
+            throw new IllegalArgumentException("Parsed list of reactants is invalid");
+        }
+        if (products == null || products.isEmpty()) {
+            throw new IllegalArgumentException("Parsed list of products is invalid");
+        }
+        if (uniqueElements == null || uniqueElements.isEmpty()) {
+            throw new IllegalArgumentException("Parsed list of unique elements is invalid");
+        }
+
         int rowCount = uniqueElements.size();
         int colCount = reactants.size() + products.size();
 
@@ -108,7 +116,7 @@ public final class Balancer {
             for (int row = 0; row < rowCount; row++) {
                 String element = uniqueElements.get(row);
                 Map<String, Fraction> compElementMap = reactant.getElements();
-                matrix[row][col] = compElementMap.getOrDefault(element, new Fraction(0));
+                matrix[row][col] = compElementMap.getOrDefault(element, Fraction.ZERO);
             }
             col++;
         }
@@ -117,7 +125,7 @@ public final class Balancer {
             for (int row = 0; row < rowCount; row++) {
                 String element = uniqueElements.get(row);
                 Map<String, Fraction> compElementMap = product.getElements();
-                matrix[row][col] = compElementMap.getOrDefault(element, new Fraction(0)).negate();
+                matrix[row][col] = compElementMap.getOrDefault(element, Fraction.ZERO).negate();
             }
             col++;
         }
@@ -130,10 +138,8 @@ public final class Balancer {
         int cols = matrix[0].length;
         Fraction[] multipliedRow = new Fraction[matrix[rowIdx2].length];
         for (int i = 0; i < cols; i++) {
-            if (matrix[rowIdx1][i] != null && matrix[rowIdx2][i] != null) {
-                multipliedRow[i] = matrix[rowIdx2][i].multiply(scale);
-                matrix[rowIdx1][i] = matrix[rowIdx1][i].add(multipliedRow[i]);
-            }
+            multipliedRow[i] = matrix[rowIdx2][i].multiply(scale);
+            matrix[rowIdx1][i] = matrix[rowIdx1][i].add(multipliedRow[i]);
         }
     }
 
@@ -141,9 +147,7 @@ public final class Balancer {
     private static void multiplyRow(Fraction[][] matrix, int rowIdx, Fraction scale) {
         int cols = matrix[0].length;
         for (int i = 0; i < cols; i++) {
-            if (matrix[rowIdx][i] != null) {
-                matrix[rowIdx][i] = matrix[rowIdx][i].multiply(scale);
-            }
+            matrix[rowIdx][i] = matrix[rowIdx][i].multiply(scale);
         }
     }
 
@@ -154,13 +158,26 @@ public final class Balancer {
         matrix[rowIdx2] = row1;
     }
 
-    // for ver = 1, return negative fraction
-    // for ver = 2, return reciprocal of fraction
-    private static Fraction getScalarFromFraction(Fraction frac, int ver) {
-        return switch (ver) {
-            case 1 -> frac.negate();
-            case 2 -> new Fraction(frac.getDenominator(), frac.getNumerator());
-            default -> throw new IllegalArgumentException("Invalid getScalarFromFraction mode identifier: " + ver);
-        };
+    private static void validateMatrix(Fraction[][] matrix) {
+
+        if (matrix == null || matrix.length == 0) {
+            throw new IllegalArgumentException("Invalid matrix given");
+        }
+
+        // in case of null elements, replace with zero
+        for (int i = 0; i < matrix.length; i++) {
+            if (matrix[i] == null || matrix[i].length == 0) throw new IllegalArgumentException("Invalid matrix: Matrix contains null or empty row");
+            for (int j = 0; j < matrix[i].length; j++) {
+                if (matrix[i][j] == null) {
+                    matrix[i][j] = Fraction.ZERO;
+                }
+            }
+        }
+
+        int len = matrix[0].length;
+        for (int i = 0; i < matrix.length; i++) {
+            if (matrix[i].length != len)
+                throw new IllegalArgumentException("Invalid matrix: Matrix has inconsistent row lengths");
+        }
     }
 }

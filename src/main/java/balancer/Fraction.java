@@ -52,7 +52,7 @@ public final class Fraction {
 
     public static long lcm(long a, long b) {
         if (a == 0 || b == 0) return 0;
-        return Math.abs(a * b) / gcd(a, b);
+        return Math.abs(Math.multiplyExact(a, b)) / gcd(a, b);
     }
 
     public long getNumerator() {

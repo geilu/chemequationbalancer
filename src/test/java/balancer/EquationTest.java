@@ -1,114 +1,21 @@
 package balancer;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EquationTest {
-    @Test
-    void testEquation1() {
-        String eq = "Co(NO3)2 + Na2S = CoS + NaNO3";
-        String expectedEq = "Co(NO3)2 + Na2S = CoS + 2NaNO3";
 
-        String result = getBalancedEquation(eq);
+    @ParameterizedTest
+    @MethodSource("getParameters")
+    void testEquation(String eq, String expectedEq) {
 
-        assertEquals(expectedEq, result);
-    }
-
-    @Test
-    void testEquation2() {
-        String eq = "C6H12O6 + O2 = CO2 + H2O";
-        String expectedEq = "C6H12O6 + 6O2 = 6CO2 + 6H2O";
-
-        String result = getBalancedEquation(eq);
-
-        assertEquals(expectedEq, result);
-    }
-
-    @Test
-    void testEquation_alreadyBalanced() {
-        String eq = "Br + O = BrO";
-        String expectedEq = "Br + O = BrO";
-
-        String result = getBalancedEquation(eq);
-
-        assertEquals(expectedEq, result);
-    }
-
-    @Test
-    void testEquation_parenthesizedGroup() {
-        String eq = "Fe + C2H3O2 = Fe(C2H3O2)3";
-        String expectedEq = "Fe + 3C2H3O2 = Fe(C2H3O2)3";
-
-        String result = getBalancedEquation(eq);
-
-        assertEquals(expectedEq, result);
-    }
-
-    @Test
-    void testEquation_parenthesizedGroup2() {
-        String eq = "Mg + OH = Mg(OH)2";
-        String expectedEq = "Mg + 2OH = Mg(OH)2";
-
-        String result = getBalancedEquation(eq);
-
-        assertEquals(expectedEq, result);
-    }
-
-    @Test
-    void testEquation_coordinationComplex() {
-        String eq = "Be + NaOH + H2O = Na2[Be(OH)4] + H2";
-        String expectedEq = "Be + 2NaOH + 2H2O = Na2[Be(OH)4] + H2";
-
-        String result = getBalancedEquation(eq);
-
-        assertEquals(expectedEq, result);
-    }
-
-    @Test
-    void testEquation_coordinationComplex2() {
-        String eq = "Al2(SO4)3 + Na[Al(OH)4] = Al(OH)3 + Na2SO4";
-        String expectedEq = "Al2(SO4)3 + 6Na[Al(OH)4] = 8Al(OH)3 + 3Na2SO4";
-
-        String result = getBalancedEquation(eq);
-
-        assertEquals(expectedEq, result);
-    }
-
-    @Test
-    void testEquation_coordinationComplex3() {
-        String eq = "Al2O3 + HCl + H2O = [Al(H2O)6]Cl3";
-        String expectedEq = "Al2O3 + 6HCl + 9H2O = 2[Al(H2O)6]Cl3";
-
-        String result = getBalancedEquation(eq);
-
-        assertEquals(expectedEq, result);
-    }
-
-    @Test
-    void testEquation_parenthesizedGroupInFront() {
-        String eq = "KOH + (NH4)2SO4 = H2O + K2SO4 + NH3";
-        String expectedEq = "2KOH + (NH4)2SO4 = 2H2O + K2SO4 + 2NH3";
-
-        String result = getBalancedEquation(eq);
-
-        assertEquals(expectedEq, result);
-    }
-
-    @Test
-    void testEquation_coordinationComplexWithIndex() {
-        String eq = "CoSO4 + (NH4)2CO3 + NH3 + O2 = (Co(NH3)4CO3)2SO4 + (NH4)2SO4 + H2O";
-        String expectedEq = "4CoSO4 + 4(NH4)2CO3 + 12NH3 + O2 = 2(Co(NH3)4CO3)2SO4 + 2(NH4)2SO4 + 2H2O";
-
-        String result = getBalancedEquation(eq);
-
-        assertEquals(expectedEq, result);
-    }
-
-    private String getBalancedEquation(String eq) {
         String[] sides = eq.split(" = ");
         List<String> uniqueElements = new ArrayList<>();
 
@@ -121,6 +28,19 @@ class EquationTest {
         Fraction[][] rrefMatrix = Balancer.matrixToRREF(matrix);
 
         long[] coeffs = Balancer.getCoefficients(rrefMatrix);
-        return SideParser.buildEquation(coeffs, reactants, products);
+        String result = SideParser.buildEquation(coeffs, reactants, products);
+
+        assertEquals(expectedEq, result);
+    }
+
+    private static Stream<Arguments> getParameters() {
+        return Stream.of(
+                Arguments.of("Fe + C2H3O2 = Fe(C2H3O2)3", "Fe + 3C2H3O2 = Fe(C2H3O2)3"),
+                Arguments.of("Br + O = BrO", "Br + O = BrO"),
+                Arguments.of("Be + NaOH + H2O = Na2[Be(OH)4] + H2", "Be + 2NaOH + 2H2O = Na2[Be(OH)4] + H2"),
+                Arguments.of("Al2O3 + HCl + H2O = [Al(H2O)6]Cl3", "Al2O3 + 6HCl + 9H2O = 2[Al(H2O)6]Cl3"),
+                Arguments.of("KOH + (NH4)2SO4 = H2O + K2SO4 + NH3", "2KOH + (NH4)2SO4 = 2H2O + K2SO4 + 2NH3"),
+                Arguments.of("CoSO4 + (NH4)2CO3 + NH3 + O2 = (Co(NH3)4CO3)2SO4 + (NH4)2SO4 + H2O", "4CoSO4 + 4(NH4)2CO3 + 12NH3 + O2 = 2(Co(NH3)4CO3)2SO4 + 2(NH4)2SO4 + 2H2O")
+        );
     }
 }
