@@ -92,9 +92,7 @@ public final class SideParser {
                 openChar = c;
             }
         }
-        if (parenIndices[0] == -1) {
-            return parenIndices;
-        }
+        if (parenIndices[0] == -1) return parenIndices;
         // find matching closing paren
         char closeChar = openChar == '(' ? ')' : ']';
         for (int i = parenIndices[0]; i < compound.length(); i++) {
@@ -103,9 +101,7 @@ public final class SideParser {
                 break;
             }
         }
-        if (parenIndices[1] == -1) {
-            return new int[]{-1, -1};
-        }
+        if (parenIndices[1] == -1) return new int[]{-1, -1};
         return parenIndices;
     }
 

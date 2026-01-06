@@ -40,7 +40,9 @@ class EquationTest {
                 Arguments.of("Be + NaOH + H2O = Na2[Be(OH)4] + H2", "Be + 2NaOH + 2H2O = Na2[Be(OH)4] + H2"),
                 Arguments.of("Al2O3 + HCl + H2O = [Al(H2O)6]Cl3", "Al2O3 + 6HCl + 9H2O = 2[Al(H2O)6]Cl3"),
                 Arguments.of("KOH + (NH4)2SO4 = H2O + K2SO4 + NH3", "2KOH + (NH4)2SO4 = 2H2O + K2SO4 + 2NH3"),
-                Arguments.of("CoSO4 + (NH4)2CO3 + NH3 + O2 = (Co(NH3)4CO3)2SO4 + (NH4)2SO4 + H2O", "4CoSO4 + 4(NH4)2CO3 + 12NH3 + O2 = 2(Co(NH3)4CO3)2SO4 + 2(NH4)2SO4 + 2H2O")
+                Arguments.of("CoSO4 + (NH4)2CO3 + NH3 + O2 = (Co(NH3)4CO3)2SO4 + (NH4)2SO4 + H2O", "4CoSO4 + 4(NH4)2CO3 + 12NH3 + O2 = 2(Co(NH3)4CO3)2SO4 + 2(NH4)2SO4 + 2H2O"),
+                Arguments.of("C169719H270466N45688O52238S911 + O2 = CO2 + H2O + N2 + SO2", // titin isoform Q8WZ42-1
+                        "2C169719H270466N45688O52238S911 + 424255O2 = 339438CO2 + 270466H2O + 45688N2 + 1822SO2")
         );
     }
 }
