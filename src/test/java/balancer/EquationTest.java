@@ -1,5 +1,6 @@
 package balancer;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -11,6 +12,26 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EquationTest {
+
+    @Test
+    void testInvalidEquation() {
+        String eq = "C + O2 = NO2";
+
+        String[] sides = eq.split(" = ");
+        List<String> uniqueElements = new ArrayList<>();
+
+        List<Compound> reactants = SideParser.parseSide(sides[0], uniqueElements);
+        List<Compound> products = SideParser.parseSide(sides[1], uniqueElements);
+
+        Fraction[][] matrix = Balancer.matrix(reactants, products, uniqueElements);
+        Fraction[][] rrefMatrix = Balancer.matrixToRREF(matrix);
+
+        long[] coeffs = Balancer.getCoefficients(rrefMatrix);
+
+        String result = SideParser.buildEquation(coeffs, reactants, products);
+        String expectedEq = "C + O2 = NO2";
+        assertEquals(expectedEq, result);
+    }
 
     @ParameterizedTest
     @MethodSource("getParameters")

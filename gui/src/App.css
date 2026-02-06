@@ -1,6 +1,121 @@
 #root {
-  max-width: 1280px;
+  min-width: 650px;
+  max-width: 600px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  font-family: "DejaVu Sans Mono", monospace;
+}
+.main-container {
+  min-width: 650px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #2d2d34;
+  padding: 10px;
+}
+.equation-container {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: center;
+  gap: 30px;
+  padding-top: 20px;
+}
+
+.element-window {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 300px;
+}
+
+.add-remove-buttons {
+  margin-bottom: 15px;
+}
+
+.field-grid {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  align-content: center;
+  width: 100%;
+}
+
+.equals-sign {
+  font-size: 30px;
+  font-weight: bold;
+  margin-top: 60px;
+  align-self: center;
+}
+
+.plus-symbol {
+  font-weight: bold;
+  margin: 0 2px;
+}
+
+.element-button-divider {
+  overflow: visible;
+  width: 70%;
+  border-color: #ceb1be;
+  box-shadow: 0 0 5px #a1999c;
+}
+
+.element-field {
+  min-width: 30px;
+  max-width:110px;
+  padding: 8px;
+  margin: 8px;
+  border: solid 2px #ceb1be;
+  border-radius: 8px;
+  background-color: #59525b;
+  font-family: "DejaVu Sans Mono", monospace;
+}
+.element-field:focus {
+  outline: none;
+  border-color: #ffdbe1;
+  box-shadow: 0 0 4px pink;
+}
+
+.btn {
+  padding: 6px 12px;
+  border: hidden;
+  border-radius: 5px;
+  margin: 5px 8px;
+  font-size: 20px;
+  font-family: "DejaVu Sans Mono", monospace;
+}
+
+.enter-button {
+  max-width: 100px;
+  align-self: center;
+  background-color: #ceb1be;
+  color: #2d2d34;
+}
+.enter-button:hover {
+  background-color: #a88a97;
+  box-shadow: 0 0 4px #9a6f82;
+}
+
+.remove-field {
+  background-color: #b97375;
+  color: #2d2d34;
+}
+.remove-field:hover {
+  background-color: #965d5f;
+  box-shadow: 0 0 2px #ab5f5f;
+}
+
+.add-field {
+  background-color: #e2dcde;
+  color: #2d2d34;
+}
+.add-field:hover {
+  background-color: #d5b3bb;
+  box-shadow: 0 0 2px #b094a7;
 }
